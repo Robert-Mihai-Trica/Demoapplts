@@ -17,18 +17,17 @@ pipeline {
         stage('Install kubectl') {
     steps {
         script {
-            // Instalează kubectl în containerul Jenkins
+            // Instalare pachete necesare și kubectl
             sh '''
                 apt-get update && apt-get install -y apt-transport-https curl gnupg lsb-release
                 curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | tee /etc/apt/trusted.gpg.d/kubernetes.asc
-                DISTRO=$(lsb_release -c | awk '{ print $2 }')
+                DISTRO=$(lsb_release -c | awk '{ print $2 }')  # Obținem codul distribuției
                 echo "deb https://apt.kubernetes.io/ kubernetes-$DISTRO main" | tee /etc/apt/sources.list.d/kubernetes.list
                 apt-get update && apt-get install -y kubectl
             '''
         }
     }
 }
-
 
         stage('Build & Test') {
             steps {
