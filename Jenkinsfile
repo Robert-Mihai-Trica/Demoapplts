@@ -1,8 +1,8 @@
 pipeline {
-    agent any  // Rulează pe orice agent disponibil
+    agent any  
 
     environment {
-        DOCKER_IMAGE = "docker.io/tricarobert/demoapp:latest"  
+        DOCKER_IMAGE = "docker.io/tricarobert/demoapp:latest"
         K8S_DEPLOYMENT = "aplicatie"
     }
 
@@ -17,8 +17,16 @@ pipeline {
         stage('Build & Test') {
             steps {
                 script {
-                    sh 'docker build -t aplicatie:latest .'
-                    sh 'docker run --rm aplicatie:latest mvn test'  // Corectat testarea cu Maven
+                    sh 'docker build --target build -t aplicatie-build .'
+                    sh 'docker run --rm aplicatie-build mvn test'  // Acum rulăm testele în imaginea de build
+                }
+            }
+        }
+
+        stage('Build Final Image') {
+            steps {
+                script {
+                    sh 'docker build -t ${DOCKER_IMAGE} .'
                 }
             }
         }
@@ -26,7 +34,7 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    sh 'docker tag aplicatie:latest ${DOCKER_IMAGE}'
+                    sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE}'
                     sh 'docker login -u "tricarobert" -p "$DOCKERHUB_PASSWORD"'
                     sh 'docker push ${DOCKER_IMAGE}'
                 }
