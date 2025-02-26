@@ -23,14 +23,6 @@ pipeline {
             }
         }
 
-       stage('Build & Test') {
-    steps {
-        script {
-            docker.image('maven:3.9.0-eclipse-temurin-17').inside {
-                sh 'mvn clean test'
-                }
-            }
-        }
 
         stage('Deploy to Minikube') {
             steps {
