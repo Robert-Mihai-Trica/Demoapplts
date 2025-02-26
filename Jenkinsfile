@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'docker' } // Rulează pe agentul cu Docker
+    agent any // Rulează pe agentul cu Docker
 
     environment {
         DOCKER_IMAGE = "docker.io/tricarobert/aplicatie"  // Înlocuiește "username" cu contul tău Docker Hub
