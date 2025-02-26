@@ -9,8 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/Robert-Mihai-Trica/Demoapplts.git'
+                git branch: 'main', url: 'https://github.com/Robert-Mihai-Trica/Demoapplts.git'
             }
         }
 
@@ -18,7 +17,7 @@ pipeline {
             steps {
                 script {
                     sh 'docker build --target build -t aplicatie-build .'
-                    sh 'docker run --rm aplicatie-build mvn test'  // Acum rulăm testele în imaginea de build
+                    sh 'docker run --rm aplicatie-build mvn test'  // Rulăm testele în imaginea de build
                 }
             }
         }
@@ -26,17 +25,19 @@ pipeline {
         stage('Build Final Image') {
             steps {
                 script {
-                    sh 'docker build -t ${DOCKER_IMAGE} .'
+                    sh "docker build -t ${DOCKER_IMAGE} ."
                 }
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
+                withCredentials([string(credentialsId: 'docker-hub-pass', variable: 'DOCKERHUB_PASSWORD')]) {
+                    sh 'echo "${DOCKERHUB_PASSWORD}" | docker login -u "tricarobert" --password-stdin'
+                }
                 script {
-                    sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE}'
-                    sh 'docker login -u "tricarobert" -p "Crush1234'
-                    sh 'docker push ${DOCKER_IMAGE}'
+                    sh "docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE}"
+                    sh "docker push ${DOCKER_IMAGE}"
                 }
             }
         }
@@ -44,11 +45,9 @@ pipeline {
         stage('Deploy to Minikube') {
             steps {
                 script {
-            withCredentials([string(credentialsId: 'docker-hub-pass', variable: 'DOCKERHUB_PASSWORD')]) {
-                sh 'echo "$DOCKERHUB_PASSWORD" | docker login -u "tricarobert" --password-stdin'
-            }
-            sh 'docker tag aplicatie:latest tricarobert/demoapp:latest'
-            sh 'docker push tricarobert/demoapp:latest'
+                    sh 'kubectl config use-context minikube'
+                    sh "kubectl delete deployment ${K8S_DEPLOYMENT} --ignore-not-found=true"
+                    sh 'kubectl apply -f k8s/deployment.yaml'
                 }
             }
         }
