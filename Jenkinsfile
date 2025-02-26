@@ -35,7 +35,7 @@ pipeline {
             steps {
                 script {
                     sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE}'
-                    sh 'docker login -u "tricarobert" -p "$DOCKERHUB_PASSWORD"'
+                    sh 'docker login -u "tricarobert" -p "Crush1234'
                     sh 'docker push ${DOCKER_IMAGE}'
                 }
             }
