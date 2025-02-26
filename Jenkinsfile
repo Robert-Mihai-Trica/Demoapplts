@@ -1,5 +1,5 @@
 pipeline {
-    agent any  
+    agent any  // Rulează pe agentul cu Docker sau pe orice agent disponibil
 
     environment {
         DOCKER_IMAGE = "docker.io/tricarobert/demoapp:latest"
@@ -9,15 +9,33 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Robert-Mihai-Trica/Demoapplts.git'
+                git branch: 'main',
+                    url: 'https://github.com/Robert-Mihai-Trica/Demoapplts.git' // Înlocuiește cu repo-ul tău
+            }
+        }
+
+        stage('Install kubectl') {
+            steps {
+                script {
+                    // Instalează kubectl în containerul Jenkins
+                    sh '''
+                        apt-get update && apt-get install -y apt-transport-https curl
+                        curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+                        echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
+                        apt-get update && apt-get install -y kubectl
+                    '''
+                }
             }
         }
 
         stage('Build & Test') {
             steps {
                 script {
+                    // Construim imaginea Docker pentru aplicație
                     sh 'docker build --target build -t aplicatie-build .'
-                    sh 'docker run --rm aplicatie-build mvn test'  // Rulăm testele în imaginea de build
+                    
+                    // Rulăm testele în imaginea de build
+                    sh 'docker run --rm aplicatie-build mvn test'
                 }
             }
         }
@@ -25,19 +43,19 @@ pipeline {
         stage('Build Final Image') {
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE} ."
+                    // Construim imaginea finală a aplicației
+                    sh 'docker build -t ${DOCKER_IMAGE} .'
                 }
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
-                withCredentials([string(credentialsId: 'docker-hub-pass', variable: 'DOCKERHUB_PASSWORD')]) {
-                    sh 'echo "${DOCKERHUB_PASSWORD}" | docker login -u "tricarobert" --password-stdin'
-                }
                 script {
-                    sh "docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE}"
-                    sh "docker push ${DOCKER_IMAGE}"
+                    // Etichetăm și încărcăm imaginea pe Docker Hub
+                    sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE}'
+                    sh 'docker login -u "tricarobert" -p "Crush1234"'
+                    sh 'docker push ${DOCKER_IMAGE}'
                 }
             }
         }
@@ -45,8 +63,11 @@ pipeline {
         stage('Deploy to Minikube') {
             steps {
                 script {
-                    sh 'kubectl --server=https://172.17.244.49:8443 get pods'
-                    sh "kubectl delete deployment ${K8S_DEPLOYMENT} --ignore-not-found=true"
+                    // Configurăm kubectl pentru Minikube
+                    sh 'kubectl config use-context minikube'
+                    
+                    // Ștergem deployment-ul existent și aplicăm noul fișier de deployment
+                    sh 'kubectl delete deployment $K8S_DEPLOYMENT --ignore-not-found=true'
                     sh 'kubectl apply -f k8s/deployment.yaml'
                 }
             }
@@ -55,6 +76,7 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 script {
+                    // Verificăm starea pod-urilor și serviciilor în Minikube
                     sh 'kubectl get pods'
                     sh 'kubectl get services'
                 }
