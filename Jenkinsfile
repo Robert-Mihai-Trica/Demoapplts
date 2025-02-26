@@ -2,7 +2,7 @@ pipeline {
     agent any // Rulează pe agentul cu Docker
 
     environment {
-        DOCKER_IMAGE = "docker.io/tricarobert/aplicatie"  // Înlocuiește "username" cu contul tău Docker Hub
+        DOCKER_IMAGE = "docker.io/tricarobert/demoapp:latest"  // Înlocuiește "username" cu contul tău Docker Hub
         K8S_DEPLOYMENT = "aplicatie"
     }
 
