@@ -44,9 +44,11 @@ pipeline {
         stage('Deploy to Minikube') {
             steps {
                 script {
-                    sh 'kubectl config use-context minikube'
-                    sh 'kubectl delete deployment "${K8S_DEPLOYMENT}" --ignore-not-found=true'
-                    sh 'kubectl apply -f k8s/deployment.yaml'
+            withCredentials([string(credentialsId: 'docker-hub-pass', variable: 'DOCKERHUB_PASSWORD')]) {
+                sh 'echo "$DOCKERHUB_PASSWORD" | docker login -u "tricarobert" --password-stdin'
+            }
+            sh 'docker tag aplicatie:latest tricarobert/demoapp:latest'
+            sh 'docker push tricarobert/demoapp:latest'
                 }
             }
         }
