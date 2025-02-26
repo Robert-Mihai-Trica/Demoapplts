@@ -1,8 +1,8 @@
 pipeline {
-    agent any // Rulează pe agentul cu Docker
+    agent any  // Rulează pe orice agent disponibil
 
     environment {
-        DOCKER_IMAGE = "docker.io/tricarobert/demoapp:latest"  // Înlocuiește "username" cu contul tău Docker Hub
+        DOCKER_IMAGE = "docker.io/tricarobert/demoapp:latest"  
         K8S_DEPLOYMENT = "aplicatie"
     }
 
@@ -10,7 +10,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/Robert-Mihai-Trica/Demoapplts.git' // Înlocuiește cu repo-ul tău
+                    url: 'https://github.com/Robert-Mihai-Trica/Demoapplts.git'
             }
         }
 
@@ -18,17 +18,26 @@ pipeline {
             steps {
                 script {
                     sh 'docker build -t aplicatie:latest .'
-                    sh 'docker run --rm aplicatie:latest maven tests/' // Ajustează dacă folosești alt framework de testare
+                    sh 'docker run --rm aplicatie:latest mvn test'  // Corectat testarea cu Maven
                 }
             }
         }
 
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    sh 'docker tag aplicatie:latest ${DOCKER_IMAGE}'
+                    sh 'docker login -u "tricarobert" -p "$DOCKERHUB_PASSWORD"'
+                    sh 'docker push ${DOCKER_IMAGE}'
+                }
+            }
+        }
 
         stage('Deploy to Minikube') {
             steps {
                 script {
                     sh 'kubectl config use-context minikube'
-                    sh 'kubectl delete deployment $K8S_DEPLOYMENT --ignore-not-found=true'
+                    sh 'kubectl delete deployment "${K8S_DEPLOYMENT}" --ignore-not-found=true'
                     sh 'kubectl apply -f k8s/deployment.yaml'
                 }
             }
@@ -43,5 +52,4 @@ pipeline {
             }
         }
     }
-}
 }
