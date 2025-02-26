@@ -45,7 +45,7 @@ pipeline {
         stage('Deploy to Minikube') {
             steps {
                 script {
-                    sh 'kubectl config use-context minikube'
+                    sh 'kubectl --server=https://172.17.244.49:8443 get pods'
                     sh "kubectl delete deployment ${K8S_DEPLOYMENT} --ignore-not-found=true"
                     sh 'kubectl apply -f k8s/deployment.yaml'
                 }
