@@ -15,18 +15,19 @@ pipeline {
         }
 
         stage('Install kubectl') {
-            steps {
-                script {
-                    // Instalează kubectl în containerul Jenkins
-                    sh '''
-                        apt-get update && apt-get install -y apt-transport-https curl
-                        curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-                        echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
-                        apt-get update && apt-get install -y kubectl
-                    '''
-                }
-            }
+    steps {
+        script {
+            // Instalează kubectl în containerul Jenkins
+            sh '''
+                apt-get update && apt-get install -y apt-transport-https curl
+                curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | tee /etc/apt/trusted.gpg.d/kubernetes.asc
+                echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
+                apt-get update && apt-get install -y kubectl
+            '''
         }
+    }
+}
+
 
         stage('Build & Test') {
             steps {
