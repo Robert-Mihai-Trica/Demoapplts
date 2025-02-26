@@ -23,11 +23,11 @@ pipeline {
             }
         }
 
-        stage('Push to Docker Hub') {
-            steps {
-                withDockerRegistry([credentialsId: 'docker-hub-cred', url: '']) {
-                    sh "docker tag aplicatie:latest $DOCKER_IMAGE:latest"
-                    sh "docker push $DOCKER_IMAGE:latest"
+       stage('Build & Test') {
+    steps {
+        script {
+            docker.image('maven:3.9.0-eclipse-temurin-17').inside {
+                sh 'mvn clean test'
                 }
             }
         }
