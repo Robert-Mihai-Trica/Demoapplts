@@ -11,7 +11,7 @@ pipeline{
         DOCKER_PASS = 'Crush1234'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-        JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
+        JENKINS_API_TOKEN = credentials("ee68ac5f-f7c4-4a24-90bc-d685e7c0e5e5")
 
     }
     stages{
