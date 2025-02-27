@@ -1,21 +1,31 @@
-FROM maven:3.9.0-eclipse-temurin-17 as build
-WORKDIR /app
-COPY . .
-RUN mvn clean test && mvn clean install  # ✅ Rulează testele în timpul build-ului
-
-FROM eclipse-temurin:17.0.6_10-jdk
-WORKDIR /app
-COPY --from=build /app/target/demoapp.jar /app/
-EXPOSE 8080
-CMD ["java", "-jar", "demoapp.jar"]
+# Folosim imaginea oficială de Jenkins
 FROM jenkins/jenkins:lts
+
+# Instalăm Docker
 USER root
-# Instalează minikube
-RUN curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
-    && chmod +x minikube \
-    && mv minikube /usr/local/bin/
-# Instalează kubectl
-RUN curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" \
-    && chmod +x ./kubectl \
-    && mv ./kubectl /usr/local/bin/kubectl
+RUN apt-get update && \
+    apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" && \
+    apt-get update && \
+    apt-get install -y docker-ce-cli
+
+# Instalăm Minikube
+RUN curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && \
+    chmod +x minikube && \
+    mv minikube /usr/local/bin/
+
+# Permiterea utilizatorului Jenkins să folosească Docker
+RUN usermod -aG docker jenkins
+
+# Configurăm Jenkins să ruleze pe portul 8383
+ENV JENKINS_OPTS --httpPort=8383
+
+# Expunem portul 8383
+EXPOSE 8383
+
+# Schimbăm înapoi utilizatorul Jenkins
 USER jenkins
+
+# Comandă de pornire Jenkins
+ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/jenkins.sh"]
