@@ -12,7 +12,7 @@ pipeline{
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
         JENKINS_API_TOKEN = credentials("e9d62095-3aa4-4ea1-89f1-78b8bf380ebb")
-	SONAR_QUBE_TOKEN = credentials("edbbd6d7-90b9-4e5e-ad0f-c766535ea5a2")
+	SONAR_QUBE_TOKEN = credentials("f006ec77-b5f4-4ac2-82db-1a0968fb4c0d")
 
     }
     stages{
