@@ -44,24 +44,22 @@ pipeline{
 
         }
         
-        stage("Sonarqube Analysis") {
+        stage('Sonarqube Analysis') {
             steps {
                 script {
-                    withSonarQubeEnv(credentialsId: 'edbbd6d7-90b9-4e5e-ad0f-c766535ea5a2') {
-                        sh "mvn sonar:sonar"
+                    withSonarQubeEnv('SonarQube') {
+                        sh "mvn sonar:sonar -Dsonar.login=${env.SONAR_QUBE_TOKEN}"
                     }
                 }
             }
-
         }
-
-        stage("Quality Gate") {
+ 
+        stage('Quality Gate') {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'edbbd6d7-90b9-4e5e-ad0f-c766535ea5a2'
+                    waitForQualityGate abortPipeline: false
                 }
             }
-
         }
 
         stage("Build & Push Docker Image") {
