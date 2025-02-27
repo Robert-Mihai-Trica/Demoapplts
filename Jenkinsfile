@@ -17,8 +17,8 @@ pipeline {
         stage('Build & Test') {
             steps {
                 script {
-                    sh 'docker build --target build -t aplicatie-build .'
-                    sh 'docker run --rm aplicatie-build mvn test'
+                    sh 'docker build --target build -t DEMOAPP-COPY .'
+                    sh 'docker run --rm DEMOAPP-COPY mvn test'
                 }
             }
         }
