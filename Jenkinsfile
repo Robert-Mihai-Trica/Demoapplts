@@ -12,6 +12,7 @@ pipeline{
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
         JENKINS_API_TOKEN = credentials("ee68ac5f-f7c4-4a24-90bc-d685e7c0e5e5")
+	SONAR_QUBE_TOKEN = credentials("edbbd6d7-90b9-4e5e-ad0f-c766535ea5a2")
 
     }
     stages{
@@ -98,7 +99,7 @@ pipeline{
         }
 
 
-        stage("Trigger CD Pipeline") {
+        /*stage("Trigger CD Pipeline") {
             steps {
                 script {
                     sh "curl -v -k --user admin:${JENKINS_API_TOKEN} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' 'https://jenkins.dev.dman.cloud/job/gitops-complete-pipeline/buildWithParameters?token=gitops-token'"
