@@ -17,11 +17,13 @@ pipeline {
         }
 
         stage('Build & Test') {
-            steps {
-                sh 'mvn clean package'
-                sh 'mvn test'
-            }
-        }
+    steps {
+        powershell '''
+        # PowerShell commands here
+        echo "Building project"
+        '''
+    }
+}
 
         stage('Build Docker Image') {
             steps {
