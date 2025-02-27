@@ -8,7 +8,7 @@ pipeline {
         APP_NAME = "DemoApp"
         RELEASE = "1.0.0"
         DOCKER_USER = "tricarobert"
-        DOCKER_CREDENTIAL_ID = 'f332576f-c076-4cb5-8eb7-482dd56df177' 
+        DOCKER_CREDENTIAL_ID = '6746df68-59b1-4588-ab5a-72e9bd0fd0be' 
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
         JENKINS_API_TOKEN = credentials("e9d62095-3aa4-4ea1-89f1-78b8bf380ebb")
@@ -40,7 +40,7 @@ pipeline {
             }
         }
         
-        /* stage('Sonarqube Analysis') {
+         stage('Sonarqube Analysis') {
             steps {
                 script {
                     withSonarQubeEnv('SonarQube') {
@@ -56,7 +56,7 @@ pipeline {
                     waitForQualityGate abortPipeline: false
                 }
             }
-        } */
+        } 
 
         stage("Build & Push Docker Image") {
             steps {
