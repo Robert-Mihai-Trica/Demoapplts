@@ -13,7 +13,7 @@ pipeline {
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${env.BUILD_NUMBER}"
         JENKINS_API_TOKEN = credentials("4d2fbf48-77ab-4450-a3ef-2d6f735f2878")
-        SONAR_QUBE_TOKEN = credentials("f006ec77-b5f4-4ac2-82db-1a0968fb4c0d")
+        SONAR_QUBE_TOKEN = credentials("31cb05e2-5f20-4b4b-9659-ba6f10145fdd")
         REPO_URL = 'https://github.com/Robert-Mihai-Trica/DemoApp.git'
         BRANCH = 'main'
         DEPLOYMENT_YAML = 'k8s/deployment.yaml'
