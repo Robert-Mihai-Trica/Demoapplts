@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    stage('Initialize'){
+        def dockerHome = tool 'myDocker'
+        env.PATH = "${dockerHome}/bin:${env.PATH}"
+    }
+
     environment {
         DOCKER_IMAGE = "docker.io/tricarobert/demoapp:latest"
         K8S_DEPLOYMENT = "aplicatie"
@@ -23,10 +28,6 @@ pipeline {
             }
         }
 
-        stage('Initialize'){
-        def dockerHome = tool 'myDocker'
-        env.PATH = "${dockerHome}/bin:${env.PATH}"
-    }
 
         stage('Build Final Image') {
             steps {
