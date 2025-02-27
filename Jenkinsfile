@@ -7,7 +7,7 @@ pipeline{
     environment {
         APP_NAME = "DemoApp"
         RELEASE = "1.0.0"
-        DOCKER_USER = "tricarobert'
+        DOCKER_USER = "tricarobert"
 	DOCKER_CREDENTIAL_ID = 'f332576f-c076-4cb5-8eb7-482dd56df177' 
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
