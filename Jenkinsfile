@@ -1,8 +1,6 @@
 pipeline {
     agent any
 
-    }
-
     environment {
         DOCKER_IMAGE = "docker.io/tricarobert/demoapp:latest"
         K8S_DEPLOYMENT = "aplicatie"
@@ -19,12 +17,11 @@ pipeline {
         stage('Build & Test') {
             steps {
                 script {
-                    sh 'docker build --target build -t DEMOAPP-COPY .'
-                    sh 'docker run --rm DEMOAPP-COPY mvn test'
+                    sh 'docker build --target build -t demoapp-build .'
+                    sh 'docker run --rm demoapp-build mvn test'
                 }
             }
         }
-
 
         stage('Build Final Image') {
             steps {
@@ -37,7 +34,7 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([string(credentialsId: 'docker-hub-pass', variable: 'DOCKERHUB_PASSWORD')]) {
-                    sh 'echo "${DOCKERHUB_PASSWORD}" | docker login -u "tricarobert" --password-stdin'
+                    sh 'echo "$DOCKERHUB_PASSWORD" | docker login -u "tricarobert" --password-stdin'
                 }
                 script {
                     sh "docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE}"
