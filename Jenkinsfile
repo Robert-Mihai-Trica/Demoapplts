@@ -11,7 +11,7 @@ pipeline{
 	DOCKER_CREDENTIAL_ID = 'f332576f-c076-4cb5-8eb7-482dd56df177' 
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-        JENKINS_API_TOKEN = credentials("ee68ac5f-f7c4-4a24-90bc-d685e7c0e5e5")
+        JENKINS_API_TOKEN = credentials("e9d62095-3aa4-4ea1-89f1-78b8bf380ebb")
 	SONAR_QUBE_TOKEN = credentials("edbbd6d7-90b9-4e5e-ad0f-c766535ea5a2")
 
     }
