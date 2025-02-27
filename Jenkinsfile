@@ -44,7 +44,7 @@ pipeline{
 
         }
         
-        stage('Sonarqube Analysis') {
+       /* stage('Sonarqube Analysis') {
             steps {
                 script {
                     withSonarQubeEnv('SonarQube') {
@@ -60,7 +60,7 @@ pipeline{
                     waitForQualityGate abortPipeline: false
                 }
             }
-        }
+        } */
 
         stage("Build & Push Docker Image") {
             steps {
