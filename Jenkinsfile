@@ -12,7 +12,7 @@ pipeline {
         DOCKER_CREDENTIAL_ID = '6746df68-59b1-4588-ab5a-72e9bd0fd0be' 
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${env.BUILD_NUMBER}"
-        JENKINS_API_TOKEN = credentials("e9d62095-3aa4-4ea1-89f1-78b8bf380ebb")
+        JENKINS_API_TOKEN = credentials("4d2fbf48-77ab-4450-a3ef-2d6f735f2878")
         SONAR_QUBE_TOKEN = credentials("f006ec77-b5f4-4ac2-82db-1a0968fb4c0d")
         REPO_URL = 'https://github.com/Robert-Mihai-Trica/DemoApp.git'
         BRANCH = 'main'
