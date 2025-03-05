@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/user/repo.git'
+                git 'https://github.com/Robert-Mihai-Trica/Demoapplts.git'
             }
         }
 
