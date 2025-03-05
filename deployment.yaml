@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: demoapp-copy
-          image: my-tricarobert/demoapp:latest  # Schimbă cu imaginea ta
+          image: my-tricarobert/demoapp:latest
           ports:
             - containerPort: 80
 ---
