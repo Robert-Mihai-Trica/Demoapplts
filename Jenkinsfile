@@ -2,12 +2,11 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "tricarobert/myapp:${env.BUILD_ID}" // Numele imaginii Docker
-        DOCKER_REGISTRY = "docker.io" // Registry-ul Docker
-        KUBERNETES_NAMESPACE = "default" // Namespace-ul Kubernetes
-        KUBERNETES_DEPLOYMENT_NAME = "demoapp" // Numele deployment-ului în Kubernetes
-        KUBECONFIG = '/home/robert/.kube/config'
-        K8S_CONTEXT = "minikube" // Contextul Kubernetes pentru Minikube
+        DOCKER_IMAGE = "tricarobert/myapp:${env.BUILD_ID}"
+        DOCKER_REGISTRY = "docker.io"
+        KUBERNETES_NAMESPACE = "default"
+        KUBERNETES_DEPLOYMENT_NAME = "demoapp"
+        K8S_CONTEXT = "minikube"
     }
 
     stages {
@@ -32,7 +31,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Construirea imaginii Docker folosind Dockerfile-ul existent
                     sh 'docker build -t ${DOCKER_IMAGE} .'
                 }
             }
@@ -41,22 +39,25 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // Autentificare în Docker Registry folosind credentialele Jenkins
                     withCredentials([usernamePassword(credentialsId: 'Docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin ${DOCKER_REGISTRY}"
                     }
-                    // Împingerea imaginii în Docker Registry
                     sh "docker push ${DOCKER_IMAGE}"
                 }
             }
         }
 
-        stage('Prepare kubeconfig') {
+        stage('Prepare Kubeconfig from Secret') {
             steps {
                 script {
-                    // Verificăm permisiunile pentru kubeconfig și copiem într-un loc accesibil
-                    sh 'cp /home/robert/.kube/config /tmp/kubeconfig'
-                    sh 'chmod 600 /tmp/kubeconfig' // Setăm permisiuni pentru fișierul kubeconfig
+                    // Injectează secretul kubeconfig în variabila de mediu
+                    withCredentials([string(credentialsId: 'kubeconfig-secret', variable: 'KUBECONFIG_CONTENT')]) {
+                        // Creează fișierul kubeconfig temporar în locația corespunzătoare
+                        writeFile file: '/tmp/kubeconfig', text: "${KUBECONFIG_CONTENT}"
+                        
+                        // Setează variabila de mediu KUBECONFIG pentru a folosi acest fișier temporar
+                        sh 'export KUBECONFIG=/tmp/kubeconfig'
+                    }
                 }
             }
         }
@@ -64,12 +65,10 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Folosim fișierul kubeconfig copiat
-                    sh "kubectl --kubeconfig=/tmp/kubeconfig config use-context ${K8S_CONTEXT}" // Folosește contextul Minikube
-                    // Actualizează deployment-ul Kubernetes cu noua imagine Docker
+                    sh "kubectl config use-context ${K8S_CONTEXT}"
                     sh """
-                    kubectl --kubeconfig=/tmp/kubeconfig set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/${DOCKER_IMAGE}
-                    kubectl --kubeconfig=/tmp/kubeconfig rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}
+                    kubectl set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/${DOCKER_IMAGE}
+                    kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}
                     """
                 }
             }
@@ -84,10 +83,8 @@ pipeline {
 
     post {
         always {
-            // Curăță resursele Docker
             sh 'docker system prune -f'
-            // Curăță fișierul kubeconfig temporar
-            sh 'rm -f /tmp/kubeconfig'
         }
     }
 }
+
