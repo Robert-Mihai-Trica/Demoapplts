@@ -6,7 +6,6 @@ pipeline {
         DOCKER_REGISTRY = "docker.io" // Registry-ul Docker
         KUBERNETES_NAMESPACE = "default" // Namespace-ul Kubernetes
         KUBERNETES_DEPLOYMENT_NAME = "demoapp" // Numele deployment-ului în Kubernetes
-        KUBECONFIG = '/home/robert/kubeconfig.yaml' // Calea corectă către fișierul kubeconfig
     }
 
     stages {
