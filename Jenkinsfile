@@ -31,7 +31,7 @@ pipeline {
             steps {
                 script {
                     // Construirea imaginii Docker folosind Dockerfile-ul existent
-                    sh 'docker build -t ${DOCKER_IMAGE} .'
+                    sh 'docker build -t tricarobert/myapp:${BUILD_ID} .'
                 }
             }
         }
