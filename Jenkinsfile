@@ -33,7 +33,7 @@ pipeline {
                     // Construirea imaginii Docker folosind Dockerfile-ul existent
                     sh 'docker build -t ${DOCKER_IMAGE} .'
                     // Debugging pentru imagini
-                    sh 'docker images'  
+                    sh 'docker images'
                 }
             }
         }
@@ -54,8 +54,12 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
+                    // Verifică ce contexte sunt disponibile
+                    sh 'kubectl config get-contexts'
+
                     // Asigură-te că ai configurat kubectl pentru a lucra cu clusterul tău Kubernetes
                     sh 'kubectl config use-context my-k8s-cluster'  // Folosește contextul corect pentru Kubernetes
+
                     // Actualizează deployment-ul Kubernetes cu noua imagine Docker
                     sh """
                     kubectl set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/${DOCKER_IMAGE}
