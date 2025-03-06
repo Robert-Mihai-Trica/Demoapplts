@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "myapp:${env.BUILD_ID}" // Numele imaginii Docker
+        DOCKER_IMAGE = "tricarobert/myapp:${env.BUILD_ID}" // Numele imaginii Docker cu prefix
         DOCKER_REGISTRY = "docker.io" // Registry-ul Docker
         KUBERNETES_NAMESPACE = "default" // Namespace-ul Kubernetes
         KUBERNETES_DEPLOYMENT_NAME = "demoapp" // Numele deployment-ului în Kubernetes
@@ -31,7 +31,9 @@ pipeline {
             steps {
                 script {
                     // Construirea imaginii Docker folosind Dockerfile-ul existent
-                    sh 'docker build -t tricarobert/myapp:${BUILD_ID} .'
+                    sh 'docker build -t ${DOCKER_IMAGE} .'
+                    // Debugging pentru imagini
+                    sh 'docker images'  
                 }
             }
         }
