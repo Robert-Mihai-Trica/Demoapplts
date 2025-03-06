@@ -53,7 +53,7 @@ pipeline {
             steps {
                 script {
                     // Asigură-te că ai configurat kubectl pentru a lucra cu clusterul tău Kubernetes
-                    sh 'kubectl config use-context my-k8s-cluster'  // Folosește contextul corect pentru Kubernetes
+                    sh 'kubectl config use-context minikube'  // Folosește contextul corect pentru Kubernetes
                     // Actualizează deployment-ul Kubernetes cu noua imagine Docker
                     sh """
                     kubectl set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/${DOCKER_IMAGE}
