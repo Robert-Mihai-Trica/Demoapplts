@@ -51,15 +51,25 @@ pipeline {
             }
         }
 
+        stage('Prepare kubeconfig') {
+            steps {
+                script {
+                    // Verificăm permisiunile pentru kubeconfig și copiem într-un loc accesibil
+                    sh 'cp /home/robert/.kube/config /tmp/kubeconfig'
+                    sh 'chmod 600 /tmp/kubeconfig' // Setăm permisiuni pentru fișierul kubeconfig
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Asigură-te că ai configurat kubectl pentru a lucra cu Minikube
-                    sh "kubectl config use-context ${K8S_CONTEXT}" // Folosește contextul Minikube
+                    // Folosim fișierul kubeconfig copiat
+                    sh "kubectl --kubeconfig=/tmp/kubeconfig config use-context ${K8S_CONTEXT}" // Folosește contextul Minikube
                     // Actualizează deployment-ul Kubernetes cu noua imagine Docker
                     sh """
-                    kubectl set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/${DOCKER_IMAGE}
-                    kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}
+                    kubectl --kubeconfig=/tmp/kubeconfig set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/${DOCKER_IMAGE}
+                    kubectl --kubeconfig=/tmp/kubeconfig rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}
                     """
                 }
             }
@@ -76,6 +86,8 @@ pipeline {
         always {
             // Curăță resursele Docker
             sh 'docker system prune -f'
+            // Curăță fișierul kubeconfig temporar
+            sh 'rm -f /tmp/kubeconfig'
         }
     }
 }
