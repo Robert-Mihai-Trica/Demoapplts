@@ -58,7 +58,7 @@ pipeline {
                     sh 'kubectl config get-contexts'
 
                     // Asigură-te că ai configurat kubectl pentru a lucra cu clusterul tău Kubernetes
-                    sh 'kubectl config use-context my-k8s-cluster'  // Folosește contextul corect pentru Kubernetes
+                    sh 'kubectl config use-context minikube'  // Folosește contextul corect pentru Kubernetes
 
                     // Actualizează deployment-ul Kubernetes cu noua imagine Docker
                     sh """
