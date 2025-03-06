@@ -6,6 +6,7 @@ pipeline {
         DOCKER_REGISTRY = "docker.io" // Registry-ul Docker
         KUBERNETES_NAMESPACE = "default" // Namespace-ul Kubernetes
         KUBERNETES_DEPLOYMENT_NAME = "demoapp" // Numele deployment-ului în Kubernetes
+        K8S_CONTEXT = "minikube" // Contextul Kubernetes pentru Minikube
     }
 
     stages {
@@ -52,8 +53,8 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Asigură-te că ai configurat kubectl pentru a lucra cu clusterul tău Kubernetes
-                    sh 'kubectl config use-context minikube'  // Folosește contextul corect pentru Kubernetes
+                    // Asigură-te că ai configurat kubectl pentru a lucra cu Minikube
+                    sh "kubectl config use-context ${K8S_CONTEXT}" // Folosește contextul Minikube
                     // Actualizează deployment-ul Kubernetes cu noua imagine Docker
                     sh """
                     kubectl set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/${DOCKER_IMAGE}
