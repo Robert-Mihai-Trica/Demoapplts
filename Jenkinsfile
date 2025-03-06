@@ -34,7 +34,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'KUBECONFIG_SECRET', variable: 'KUBECONFIG_CONTENT')]) {
                     script {
-                        writeFile(file: '/tmp/kubeconfig', text: KUBECONFIG_CONTENT)
+                        writeFile(file: '/home/robert/kubeconfig', text: KUBECONFIG_CONTENT)
                         sh 'export KUBECONFIG=/tmp/kubeconfig'
                     }
                 }
