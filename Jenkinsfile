@@ -1,183 +1,30 @@
 pipeline {
-
     agent any
 
-
-
-
-    environment {
-
-
-        DOCKER_IMAGE = "myapp:${env.BUILD_ID}" // Numele imaginii Docker
-
-
-        DOCKER_REGISTRY = "docker.io" // Registry-ul Docker
-
-
-        KUBERNETES_NAMESPACE = "default" // Namespace-ul Kubernetes
-
-
-        KUBERNETES_DEPLOYMENT_NAME = "demoapp" // Numele deployment-ului în Kubernetes
-
-
-    }
-
-
-
-
     stages {
-
         stage('Checkout') {
-
             steps {
-
-@@ -20,10 +27,53 @@ pipeline {
-
+                git 'hhttps://github.com/Robert-Mihai-Trica/Demoapplts.git'
             }
-
         }
 
-
-
-
-        stage('Build Docker Image') {
-
-
+        stage('Build') {
             steps {
-
-
-                script {
-
-
-                    // Construirea imaginii Docker folosind Dockerfile-ul existent
-
-
-                    sh 'docker build -t ${DOCKER_IMAGE} .'
-
-
-                }
-
-
+                sh 'mvn clean package'
             }
-
-
         }
 
-
-
-
-
-        stage('Push Docker Image') {
-
-
+        stage('Test') {
             steps {
-
-
-                script {
-
-
-                    // Autentificare în Docker Registry (poți folosi credentiale Jenkins)
-
-
-                    withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-
-
-                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin ${DOCKER_REGISTRY}"
-
-
-                    }
-
-
-                    // Împingerea imaginii în Docker Registry
-
-
-                    sh "docker push ${DOCKER_IMAGE}"
-
-
-                }
-
-
+                sh 'mvn test'
             }
-
-
         }
-
-
-
-
-
-        stage('Deploy to Kubernetes') {
-
-
-            steps {
-
-
-                script {
-
-
-                    // Asigură-te că ai configurat kubectl pentru a lucra cu clusterul tău Kubernetes
-
-
-                    sh 'kubectl config use-context my-k8s-cluster'  // Folosește contextul corect pentru Kubernetes
-
-
-                    // Actualizează deployment-ul Kubernetes cu noua imagine Docker
-
-
-                    sh """
-
-
-                    kubectl set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/${DOCKER_IMAGE}
-
-
-                    kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}
-
-
-                    """
-
-
-                }
-
-
-            }
-
-
-        }
-
-
-
 
         stage('Results') {
-
             steps {
-
                 junit '**/target/surefire-reports/*.xml'
-
             }
-
         }
-
     }
-
-
-
-
-
-    post {
-
-
-        always {
-
-
-            // Curăță resursele Docker
-
-
-            sh 'docker system prune -f'
-
-
-        }
-
-
-    }
-
 }
+
