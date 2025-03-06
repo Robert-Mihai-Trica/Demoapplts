@@ -44,7 +44,7 @@ pipeline {
                         sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin ${DOCKER_REGISTRY}"
                     }
                     // Împingerea imaginii în Docker Registry
-                    sh "docker push ${DOCKER_IMAGE}"
+                    sh "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}"
                 }
             }
         }
