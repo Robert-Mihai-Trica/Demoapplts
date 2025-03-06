@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'hhttps://github.com/Robert-Mihai-Trica/Demoapplts.git'
+                git 'https://github.com/Robert-Mihai-Trica/Demoapplts.git'
             }
         }
 
