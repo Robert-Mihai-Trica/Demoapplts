@@ -39,8 +39,8 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // Autentificare în Docker Registry (poți folosi credentiale Jenkins)
-                    withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    // Autentificare în Docker Registry folosind credentialele Jenkins
+                    withCredentials([usernamePassword(credentialsId: 'Docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin ${DOCKER_REGISTRY}"
                     }
                     // Împingerea imaginii în Docker Registry
