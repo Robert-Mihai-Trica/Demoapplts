@@ -32,11 +32,10 @@ pipeline {
 
         stage('Prepare kubeconfig') {
             steps {
-                withCredentials([string(credentialsId: 'KUBECONFIG_SECRET', variable: 'KUBECONFIG_CONTENT')]) {
-                    script {
-                        writeFile(file: '/home/robert/kubeconfig', text: KUBECONFIG_CONTENT)
-                        sh 'export KUBECONFIG=/tmp/kubeconfig'
-                    }
+                withCredentials([file(credentialsId: 'KUBECONFIG_SECRET', variable: 'KUBECONFIG_FILE')]) {
+    sh "cp ${KUBECONFIG_FILE} /tmp/kubeconfig"
+}
+
                 }
             }
         }
