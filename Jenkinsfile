@@ -6,6 +6,7 @@ pipeline {
         DOCKER_REGISTRY = "docker.io" // Registry-ul Docker
         KUBERNETES_NAMESPACE = "default" // Namespace-ul Kubernetes
         KUBERNETES_DEPLOYMENT_NAME = "demoapp" // Numele deployment-ului în Kubernetes
+        KUBECONFIG = '/home/robert/.kube/config'
         K8S_CONTEXT = "minikube" // Contextul Kubernetes pentru Minikube
     }
 
