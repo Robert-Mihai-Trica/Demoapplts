@@ -6,7 +6,7 @@ pipeline {
         DOCKER_REGISTRY = "docker.io"
         KUBERNETES_NAMESPACE = "default"
         KUBERNETES_DEPLOYMENT_NAME = "demoapp"
-        KUBECONFIG = "/home/robert/.minikube/profiles/minikube/"
+        KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
 
     stages {
