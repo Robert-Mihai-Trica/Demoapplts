@@ -53,18 +53,24 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    // Asigură-te că ai configurat kubectl pentru a lucra cu clusterul tău Kubernetes
-                    sh 'kubectl config use-context my-k8s-cluster'  // Folosește contextul corect pentru Kubernetes
-                    // Actualizează deployment-ul Kubernetes cu noua imagine Docker
-                    sh """
-                    kubectl set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/${DOCKER_IMAGE}
-                    kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}
-                    """
-                }
-            }
+                         steps {
+                               script {
+            // Folosește contextul Kubernetes corect
+            sh 'kubectl config use-context minikube'
+
+            // Verifică dacă deployment-ul există și, dacă nu, îl creează
+            sh """
+            kubectl get deployment/${KUBERNETES_DEPLOYMENT_NAME} || kubectl apply -f k8s/deployment.yaml
+            """
+
+            // Actualizează deployment-ul Kubernetes cu noua imagine Docker
+            sh """
+            kubectl set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/${DOCKER_IMAGE}
+            kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}
+            """
         }
+    }
+}
 
         stage('Results') {
             steps {
