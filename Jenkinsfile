@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "tricarobert/myapp:${env.BUILD_ID}"
+        DOCKER_IMAGE = "tricarobert/demoapp:${env.BUILD_ID}"
         KUBERNETES_NAMESPACE = "default"
         KUBERNETES_DEPLOYMENT_NAME = "demoapp"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
