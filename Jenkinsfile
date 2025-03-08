@@ -69,15 +69,23 @@ spec:
         }
 
         stage('Deploy to Minikube') {
-            steps {
-                script {
-                    sh 'kubectl config use-context minikube'
-                    sh 'kubectl apply -f ${DEPLOYMENT_YAML}'
-                    sh 'kubectl set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_IMAGE}'
-                    sh 'kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}'
-                }
+    steps {
+        script {
+            sh 'kubectl config use-context minikube'
+            sh 'kubectl apply -f ${DEPLOYMENT_YAML}'
+            sh 'kubectl get deployments'
+
+            def deploymentExists = sh(script: "kubectl get deployment ${KUBERNETES_DEPLOYMENT_NAME} --ignore-not-found", returnStdout: true).trim()
+            
+            if (deploymentExists) {
+                sh 'kubectl set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_IMAGE}'
+                sh 'kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}'
+            } else {
+                echo "⚠️ Deployment-ul nu a fost creat! Verifică YAML-ul!"
             }
         }
+    }
+}
 
         stage('Results') {
             steps {
