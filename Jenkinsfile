@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "tricarobert/myapp:${env.BUILD_ID}" // Numele imaginii Docker cu prefix
-        DOCKER_REGISTRY = "docker.io" // Registry-ul Docker
-        KUBERNETES_NAMESPACE = "default" // Namespace-ul Kubernetes
-        KUBERNETES_DEPLOYMENT_NAME = "demoapp" // Numele deployment-ului în Kubernetes
-        KUBECONFIG = "/var/lib/jenkins/.kube/config"     
+        DOCKER_IMAGE = "tricarobert/myapp:${env.BUILD_ID}"
+        KUBERNETES_NAMESPACE = "default"
+        KUBERNETES_DEPLOYMENT_NAME = "demoapp"
+        KUBECONFIG = "/var/lib/jenkins/.kube/config"
+        DEPLOYMENT_YAML = "k8s/deployment.yaml"
     }
 
     stages {
@@ -28,49 +28,71 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Docker Image for Minikube') {
             steps {
                 script {
-                    // Construirea imaginii Docker folosind Dockerfile-ul existent
+                    // Setează Docker să folosească daemon-ul Minikube
+                    sh 'eval $(minikube docker-env)'
+
+                    // Construiește imaginea Docker local în Minikube
                     sh 'docker build -t ${DOCKER_IMAGE} .'
+                    
                     // Debugging pentru imagini
-                    sh 'docker images'  
+                    sh 'docker images'
                 }
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Generate Deployment YAML') {
             steps {
                 script {
-                    // Autentificare în Docker Registry (poți folosi credentiale Jenkins)
-                    withCredentials([usernamePassword(credentialsId: 'Docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin ${DOCKER_REGISTRY}"
-                    }
-                    // Împingerea imaginii în Docker Registry
-                    sh "docker push ${DOCKER_IMAGE}"
+                    // Creează directorul dacă nu există
+                    sh 'mkdir -p k8s'
+
+                    // Generează deployment.yaml dinamic
+                    writeFile file: "${DEPLOYMENT_YAML}", text: """
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${KUBERNETES_DEPLOYMENT_NAME}
+  namespace: ${KUBERNETES_NAMESPACE}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${KUBERNETES_DEPLOYMENT_NAME}
+  template:
+    metadata:
+      labels:
+        app: ${KUBERNETES_DEPLOYMENT_NAME}
+    spec:
+      containers:
+        - name: ${KUBERNETES_DEPLOYMENT_NAME}
+          image: ${DOCKER_IMAGE}
+          ports:
+            - containerPort: 8080
+"""
+                    
+                    // Debugging pentru conținutul fișierului
+                    sh "cat ${DEPLOYMENT_YAML}"
                 }
             }
         }
 
-        stage('Deploy to Kubernetes') {
-                         steps {
-                               script {
-            // Folosește contextul Kubernetes corect
-            sh 'kubectl config use-context minikube'
+        stage('Deploy to Minikube') {
+            steps {
+                script {
+                    // Setează contextul Kubernetes pe Minikube
+                    sh 'kubectl config use-context minikube'
 
-            // Verifică dacă deployment-ul există și, dacă nu, îl creează
-            sh """
-            kubectl get deployment/${KUBERNETES_DEPLOYMENT_NAME} || kubectl apply -f k8s/deployment.yaml
-            """
+                    // Aplică deployment-ul generat
+                    sh "kubectl apply -f ${DEPLOYMENT_YAML}"
 
-            // Actualizează deployment-ul Kubernetes cu noua imagine Docker
-            sh """
-            kubectl set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/${DOCKER_IMAGE}
-            kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}
-            """
+                    // Verifică statusul deployment-ului
+                    sh "kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}"
+                }
+            }
         }
-    }
-}
 
         stage('Results') {
             steps {
@@ -81,7 +103,6 @@ pipeline {
 
     post {
         always {
-            // Curăță resursele Docker
             sh 'docker system prune -f'
         }
     }
