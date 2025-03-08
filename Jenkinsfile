@@ -31,13 +31,8 @@ pipeline {
         stage('Build Docker Image for Minikube') {
             steps {
                 script {
-                    // Setează Docker să folosească daemon-ul Minikube
                     sh 'eval $(minikube docker-env)'
-
-                    // Construiește imaginea Docker local în Minikube
                     sh 'docker build -t ${DOCKER_IMAGE} .'
-                    
-                    // Debugging pentru imagini
                     sh 'docker images'
                 }
             }
@@ -46,10 +41,7 @@ pipeline {
         stage('Generate Deployment YAML') {
             steps {
                 script {
-                    // Creează directorul dacă nu există
                     sh 'mkdir -p k8s'
-
-                    // Generează deployment.yaml dinamic
                     writeFile file: "${DEPLOYMENT_YAML}", text: """
 apiVersion: apps/v1
 kind: Deployment
@@ -72,8 +64,6 @@ spec:
           ports:
             - containerPort: 8080
 """
-                    
-                    // Debugging pentru conținutul fișierului
                     sh "cat ${DEPLOYMENT_YAML}"
                 }
             }
@@ -82,14 +72,11 @@ spec:
         stage('Deploy to Minikube') {
             steps {
                 script {
-                    // Setează contextul Kubernetes pe Minikube
                     sh 'kubectl config use-context minikube'
-
-                    // Aplică deployment-ul generat
-                    sh "kubectl apply -f ${DEPLOYMENT_YAML}"
-
-                    // Verifică statusul deployment-ului
-                    sh "kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}"
+                    sh """
+                    kubectl get deployment ${KUBERNETES_DEPLOYMENT_NAME} || kubectl apply -f ${DEPLOYMENT_YAML}
+                    kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}
+                    """
                 }
             }
         }
