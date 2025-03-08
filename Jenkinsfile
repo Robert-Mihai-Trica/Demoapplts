@@ -4,15 +4,23 @@ pipeline {
     environment {
         DOCKER_IMAGE = "tricarobert/myapp:${env.BUILD_ID}"
         KUBERNETES_NAMESPACE = "default"
-        KUBERNETES_DEPLOYMENT_NAME = "myapp"
+        KUBERNETES_DEPLOYMENT_NAME = "demoapp"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
-        DEPLOYMENT_YAML = "deployment.yaml"
+        DEPLOYMENT_YAML = "" // Initialize as empty, will be set in a stage
     }
  
     stages {
         stage('Checkout') {
             steps {
                 git 'https://github.com/Robert-Mihai-Trica/Demoapplts.git'
+            }
+        }
+ 
+        stage('Set Deployment YAML Path') {
+            steps {
+                script {
+                    env.DEPLOYMENT_YAML = "${env.WORKSPACE}/deployment.yaml"
+                }
             }
         }
  
@@ -70,4 +78,3 @@ pipeline {
         }
     }
 }
- 
