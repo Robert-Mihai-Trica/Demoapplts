@@ -30,13 +30,23 @@ pipeline {
         }
 
         stage('Build Docker Image for Minikube') {
-            steps {
-                script {
-                    sh 'eval $(minikube docker-env) && docker build -t ${DOCKER_IMAGE} .'
-                    sh 'docker images'
-                }
+    steps {
+        script {
+            // Conectare la Minikube pentru a construi imaginea Docker
+            sh 'eval $(minikube docker-env) && docker build -t ${DOCKER_IMAGE} .'
+            // Afișează imaginile Docker pentru a verifica dacă a fost construită
+            sh 'docker images'
+
+            // Autentificare în Docker Hub
+            withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
             }
+
+            // Push la imaginea Docker pe Docker Hub
+            sh 'docker push ${DOCKER_IMAGE}'
         }
+    }
+}
 
         stage('Generate Deployment YAML') {
             steps {
