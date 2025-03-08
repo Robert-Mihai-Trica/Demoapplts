@@ -57,7 +57,7 @@ metadata:
   name: ${KUBERNETES_DEPLOYMENT_NAME}
   namespace: ${KUBERNETES_NAMESPACE}
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: ${KUBERNETES_DEPLOYMENT_NAME}
