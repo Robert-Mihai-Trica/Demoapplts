@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = "tricarobert/myapp:${env.BUILD_ID}"
         KUBERNETES_NAMESPACE = "default"
-        KUBERNETES_DEPLOYMENT_NAME = "demoapp"
+        KUBERNETES_DEPLOYMENT_NAME = "myapp"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
         // Calea completă către fișierul YAML
        // DEPLOYMENT_YAML = "/home/robert/Desktop/Demo/Demoapplts/deployment.yaml"
