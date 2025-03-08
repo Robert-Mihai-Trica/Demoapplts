@@ -13,13 +13,18 @@ pipeline {
         stage('Checkout') {
             steps {
                 git 'https://github.com/Robert-Mihai-Trica/Demoapplts.git'
+                script {
+                    // Print the current working directory
+                    sh 'pwd'
+                }
             }
         }
  
         stage('Set Deployment YAML Path') {
             steps {
                 script {
-                    env.DEPLOYMENT_YAML = "${env.WORKSPACE}/deployment.yaml"
+                    DEPLOYMENT_YAML = "${WORKSPACE}/deployment.yaml"
+                    echo "DEPLOYMENT_YAML is set to: ${DEPLOYMENT_YAML}"
                 }
             }
         }
