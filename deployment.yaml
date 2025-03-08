@@ -17,4 +17,4 @@ spec:
         - name: ${KUBERNETES_DEPLOYMENT_NAME}
           image: ${DOCKER_IMAGE}
           ports:
-            - containerPort: 8080
+            - containerPort: 9090
