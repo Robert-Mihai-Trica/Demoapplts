@@ -8,7 +8,7 @@ pipeline {
         KUBERNETES_DEPLOYMENT_NAME = "demoapp"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
         // Calea completă către fișierul YAML
-        // DEPLOYMENT_YAML = "/home/robert/Desktop/Demo/Demoapplts/deployment.yaml"
+        DEPLOYMENT_YAML = "/home/robert/Desktop/Demo/Demoapplts/deployment.yaml"
     }
 
     stages {
