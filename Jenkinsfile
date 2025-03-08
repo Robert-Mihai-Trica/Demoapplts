@@ -6,7 +6,7 @@ pipeline {
         KUBERNETES_NAMESPACE = "default"
         KUBERNETES_DEPLOYMENT_NAME = "demoapp"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
-        DEPLOYMENT_YAML = "k8s/deployment.yaml"
+        DEPLOYMENT_YAML = "${env.WORKSPACE}/k8s/deployment.yaml"
     }
 
     stages {
@@ -31,8 +31,7 @@ pipeline {
         stage('Build Docker Image for Minikube') {
             steps {
                 script {
-                    sh 'eval $(minikube docker-env)'
-                    sh 'docker build -t ${DOCKER_IMAGE} .'
+                    sh 'eval $(minikube docker-env) && docker build -t ${DOCKER_IMAGE} .'
                     sh 'docker images'
                 }
             }
@@ -42,7 +41,7 @@ pipeline {
             steps {
                 script {
                     sh 'mkdir -p k8s'
-                    writeFile file: "${DEPLOYMENT_YAML}", text: """
+                    writeFile file: DEPLOYMENT_YAML, text: """
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -73,10 +72,9 @@ spec:
             steps {
                 script {
                     sh 'kubectl config use-context minikube'
-                    sh """
-                    kubectl get deployment ${KUBERNETES_DEPLOYMENT_NAME} || kubectl apply -f ${DEPLOYMENT_YAML}
-                    kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}
-                    """
+                    sh 'kubectl apply -f ${DEPLOYMENT_YAML}'
+                    sh 'kubectl set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_IMAGE}'
+                    sh 'kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}'
                 }
             }
         }
