@@ -2,12 +2,13 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "tricarobert/demoapp:${env.BUILD_ID}"
+        DOCKER_IMAGE = "tricarobert/myapp:${env.BUILD_ID}"
         KUBERNETES_NAMESPACE = "default"
         KUBERNETES_DEPLOYMENT_NAME = "demoapp"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
         // Calea completă către fișierul YAML
-        DEPLOYMENT_YAML = "/home/robert/Desktop/Demo/Demoapplts/deployment.yaml"
+       // DEPLOYMENT_YAML = "/home/robert/Desktop/Demo/Demoapplts/deployment.yaml"
+        DEPLOYMENT_YAML="deployment.yaml"
     }
 
     stages {
