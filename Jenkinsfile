@@ -12,6 +12,12 @@ pipeline {
     }
 
     stages {
+        stage('Cheking default deployment.yaml') {
+            steps {
+                    sh "cat ${DEPLOYMENT_YAML}"            
+            }
+        }
+        
         stage('Checkout') {
             steps {
                 git 'https://github.com/Robert-Mihai-Trica/Demoapplts.git'
