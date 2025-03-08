@@ -6,7 +6,8 @@ pipeline {
         KUBERNETES_NAMESPACE = "default"
         KUBERNETES_DEPLOYMENT_NAME = "demoapp"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
-        DEPLOYMENT_YAML = "${env.WORKSPACE}/k8s/deployment.yaml"
+        // Calea completă către fișierul YAML
+        DEPLOYMENT_YAML = "/home/robert/Desktop/Demo/Demoapplts/deployment.yaml"
     }
 
     stages {
@@ -40,6 +41,7 @@ pipeline {
         stage('Generate Deployment YAML') {
             steps {
                 script {
+                    // Se asigură că directorul `k8s` există
                     sh 'mkdir -p k8s'
                     writeFile file: DEPLOYMENT_YAML, text: """
 apiVersion: apps/v1
@@ -63,29 +65,31 @@ spec:
           ports:
             - containerPort: 8080
 """
+                    // Verifică conținutul fișierului YAML generat
                     sh "cat ${DEPLOYMENT_YAML}"
                 }
             }
         }
 
         stage('Deploy to Minikube') {
-    steps {
-        script {
-            sh 'kubectl config use-context minikube'
-            sh 'kubectl apply -f ${DEPLOYMENT_YAML}'
-            sh 'kubectl get deployments'
+            steps {
+                script {
+                    sh 'kubectl config use-context minikube'
+                    // Aplică fișierul YAML folosind calea completă
+                    sh "kubectl apply -f ${DEPLOYMENT_YAML}"
+                    sh 'kubectl get deployments'
 
-            def deploymentExists = sh(script: "kubectl get deployment ${KUBERNETES_DEPLOYMENT_NAME} --ignore-not-found", returnStdout: true).trim()
-            
-            if (deploymentExists) {
-                sh 'kubectl set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_IMAGE}'
-                sh 'kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}'
-            } else {
-                echo "⚠️ Deployment-ul nu a fost creat! Verifică YAML-ul!"
+                    def deploymentExists = sh(script: "kubectl get deployment ${KUBERNETES_DEPLOYMENT_NAME} --ignore-not-found", returnStdout: true).trim()
+
+                    if (deploymentExists) {
+                        sh "kubectl set image deployment/${KUBERNETES_DEPLOYMENT_NAME} ${KUBERNETES_DEPLOYMENT_NAME}=${DOCKER_IMAGE}"
+                        sh "kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT_NAME}"
+                    } else {
+                        echo "⚠️ Deployment-ul nu a fost creat! Verifică YAML-ul!"
+                    }
+                }
             }
         }
-    }
-}
 
         stage('Results') {
             steps {
